@@ -18,7 +18,14 @@ fixtures = [
                     "Employee-custom_branch",
                 ]
             ]
-        ]
+        ],
+        "dt": "Print Format", "filters": [
+            [
+                "name", "in", [
+                    "Salary Statement Request Fromat",
+                ]
+            ]
+        ],
     },
 ]
 
