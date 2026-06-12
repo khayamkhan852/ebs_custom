@@ -84,6 +84,7 @@
    "default": "Today",
    "fieldname": "request_date",
    "fieldtype": "Date",
+   "in_list_view": 1,
    "label": "Request Date",
    "reqd": 1
   },
@@ -140,7 +141,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-06-11 13:59:04.946047",
+ "modified": "2026-06-12 14:53:49.536235",
  "modified_by": "Administrator",
  "module": "Employee Requests",
  "name": "Salary Statement Request",
