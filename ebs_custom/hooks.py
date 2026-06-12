@@ -262,6 +262,19 @@ doc_events = {
 # 	}
 # ]
 
+
+permission_query_conditions = {
+	"Employee Complaint": "ebs_custom.hr_complaints.permissions.get_permission_query_conditions",
+	"Resignation Request": "ebs_custom.employee_exit.permissions.get_resignation_query_conditions",
+	"Offboarding Interview": "ebs_custom.employee_exit.permissions.get_offboarding_query_conditions",
+}
+
+has_permission = {
+	"Employee Complaint": "ebs_custom.hr_complaints.permissions.has_permission",
+	"Resignation Request": "ebs_custom.employee_exit.permissions.has_resignation_permission",
+	"Offboarding Interview": "ebs_custom.employee_exit.permissions.has_offboarding_permission",
+}
+
 # Authentication and authorization
 # --------------------------------
 
