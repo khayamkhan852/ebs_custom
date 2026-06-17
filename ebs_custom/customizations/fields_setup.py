@@ -175,6 +175,22 @@ def setup_custom_fields():
         "insert_after": "department"
     })
 
+    create_field_if_missing("Employee Checkin", {
+        "fieldname": "approval_status",
+        "fieldtype": "Select",
+        "label": "Approval Status",
+        "options": "Pending\nApproved\nRejected",
+        "default": "Pending",
+        "insert_after": "log_type",
+    })
+
+    create_field_if_missing("Employee", {
+        "fieldname": "custom_current_salary",
+        "fieldtype": "Currency",
+        "label": "Current Salary",
+        "insert_after": "custom_branch",
+    })
+
 
 # =====================================================
 # REMOVE FIELDS (UNINSTALL)
@@ -207,6 +223,9 @@ def remove_custom_fields():
 
     # Remove invoice number field
     delete_field("Expense Claim", invoice_number_field)
+
+    delete_field("Employee Checkin", "approval_status")
+    delete_field("Employee", "custom_current_salary")
 
 
 # =====================================================

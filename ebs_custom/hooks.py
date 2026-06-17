@@ -16,6 +16,8 @@ fixtures = [
             [
                 "name", "in", [
                     "Employee-custom_branch",
+                    "Employee Checkin-approval_status",
+                    "Employee-custom_current_salary",
                 ]
             ]
         ],
@@ -63,6 +65,11 @@ fixtures = [
 
 # include js in doctype views
 # doctype_js = {"doctype" : "public/js/doctype.js"}
+doctype_js = {
+	"Branch Attendance Approval": "ebs_custom/doctype/branch_attendance_approval/branch_attendance_approval.js",
+	"Salary Adjustment Request": "ebs_custom/doctype/salary_adjustment_request/salary_adjustment_request.js",
+	"Promotion Request": "ebs_custom/doctype/promotion_request/promotion_request.js",
+}
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
@@ -106,8 +113,9 @@ fixtures = [
 
 # before_install = "ebs_custom.install.before_install"
 # after_install = "ebs_custom.install.after_install"
-after_install = "ebs_custom.customizations.fields_setup.execute"
 before_uninstall = "ebs_custom.customizations.fields_setup.remove_custom_fields"
+after_install = "ebs_custom.customizations.fields_setup.execute"
+after_migrate = "ebs_custom.setup.after_migrate"
 # Uninstallation
 # ------------
 
@@ -168,11 +176,29 @@ doc_events = {
     "Stock Ledger Entry": {
         "before_insert": "ebs_custom.overrides.branch_logic.set_branch_in_sle",
         "before_save": "ebs_custom.overrides.branch_logic.set_branch_in_gl"
-    }
+    },
+    "Employee Checkin": {
+        "validate": "ebs_custom.attendance.events.attendance.validate_checkin",
+    },
+    "Branch Attendance Approval": {
+        "on_update": "ebs_custom.attendance.events.attendance.on_branch_approval_update",
+    },
+    "Salary Adjustment Request": {
+        "on_update": "ebs_custom.hr_requests.events.salary_promotion.on_hr_request_update",
+    },
+    "Promotion Request": {
+        "on_update": "ebs_custom.hr_requests.events.salary_promotion.on_hr_request_update",
+    },
 }
 
 # Scheduled Tasks
 # ---------------
+
+scheduler_events = {
+	"daily": [
+		"ebs_custom.hr_requests.events.salary_promotion.apply_scheduled_hr_updates",
+	],
+}
 
 # scheduler_events = {
 # 	"all": [
