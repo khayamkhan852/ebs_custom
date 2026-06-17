@@ -24,7 +24,6 @@ class SalaryStatementRequest(Document):
 		remarks: DF.SmallText | None
 		request_date: DF.Date
 		salary_statement: DF.Attach | None
-		status: DF.Literal["Pending", "Processed"]
 	# end: auto-generated types
 
 	pass
