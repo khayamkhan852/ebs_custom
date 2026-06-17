@@ -19,8 +19,6 @@
   "date_of_joining",
   "column_break_qasd",
   "purpose",
-  "processing_info_section",
-  "status",
   "generated_document_section",
   "salary_statement",
   "section_break_ascp",
@@ -99,18 +97,6 @@
    "reqd": 1
   },
   {
-   "fieldname": "processing_info_section",
-   "fieldtype": "Section Break",
-   "label": "Processing Info"
-  },
-  {
-   "default": "Pending",
-   "fieldname": "status",
-   "fieldtype": "Select",
-   "label": "Status",
-   "options": "Pending\nProcessed"
-  },
-  {
    "fieldname": "generated_document_section",
    "fieldtype": "Section Break",
    "label": "Generated Document"
@@ -141,7 +127,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-06-12 14:53:49.536235",
+ "modified": "2026-06-17 11:44:09.352536",
  "modified_by": "Administrator",
  "module": "Employee Requests",
  "name": "Salary Statement Request",
