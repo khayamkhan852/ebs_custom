@@ -185,13 +185,7 @@
     ],
     "in_create": 1,
     "is_submittable": 1,
-    "links": [
-        {
-            "group": "Exit Process",
-            "link_doctype": "Resignation Request",
-            "link_fieldname": "resignation_request"
-        }
-    ],
+    "links": [],
     "modified": "2026-06-11 00:00:00.000000",
     "modified_by": "Administrator",
     "module": "Employee Exit",
