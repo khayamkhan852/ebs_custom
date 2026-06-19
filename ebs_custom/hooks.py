@@ -28,6 +28,19 @@ fixtures = [
                 ]
             ]
         ],
+        "dt": "Workflow", "filters": [
+            [
+                "name", "in", [
+                    "Offboarding Interview Workflow",
+                    "Resignation Request Workflow",
+                    "Salary Statement Request Workflow",
+                    "Shift Transfer Request Workflow",
+                    "Branch Transfer Request Workflow",
+                    "Loan Approval Multi Level",
+                    "Leave Approval Multi Level"
+                ]
+            ]
+        ],   
     },
 ]
 

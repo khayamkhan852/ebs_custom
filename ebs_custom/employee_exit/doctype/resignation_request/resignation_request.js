@@ -4,8 +4,8 @@
 frappe.ui.form.on("Resignation Request", {
 
 	refresh(frm) {
-		frm.trigger("set_approval_buttons");
-		frm.trigger("lock_status_field");
+		// frm.trigger("set_approval_buttons");
+		// frm.trigger("lock_status_field");
 	},
 
 	employee(frm) {

@@ -8,6 +8,26 @@ from frappe.utils import date_diff, getdate
 
 
 class ResignationRequest(Document):
+	# begin: auto-generated types
+	# This code is auto-generated. Do not modify anything in this block.
+
+	from typing import TYPE_CHECKING
+
+	if TYPE_CHECKING:
+		from frappe.types import DF
+
+		amended_from: DF.Link | None
+		department: DF.Link | None
+		employee: DF.Link
+		employee_id: DF.Data | None
+		employee_name: DF.Data | None
+		last_working_day: DF.Date
+		naming_series: DF.Literal["RES-.YYYY.-.#####"]
+		notice_period_acknowledgement: DF.Check
+		notice_period_days: DF.Int
+		reason_for_resignation: DF.LongText
+		resignation_date: DF.Date
+	# end: auto-generated types
 
 	# ------------------------------------------------------------------ #
 	# Lifecycle hooks                                                      #
@@ -32,11 +52,13 @@ class ResignationRequest(Document):
 
 	def on_submit(self):
 		"""Move status to first approver stage on submission."""
-		frappe.db.set_value(self.doctype, self.name, "status", "Pending Line Manager")
-		self._notify_approver("Line Manager", "Pending Line Manager")
+		pass
+		# frappe.db.set_value(self.doctype, self.name, "status", "Pending Line Manager")
+		# self._notify_approver("Line Manager", "Pending Line Manager")
 
 	def on_cancel(self):
-		frappe.db.set_value(self.doctype, self.name, "status", "Draft")
+		pass
+		# frappe.db.set_value(self.doctype, self.name, "status", "Draft")
 
 	# ------------------------------------------------------------------ #
 	# Validation helpers                                                   #

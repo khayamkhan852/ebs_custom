@@ -7,7 +7,29 @@ from frappe import _
 
 
 class OffboardingInterview(Document):
+	# begin: auto-generated types
+	# This code is auto-generated. Do not modify anything in this block.
 
+	from typing import TYPE_CHECKING
+
+	if TYPE_CHECKING:
+		from frappe.types import DF
+
+		amended_from: DF.Link | None
+		comments_feedback: DF.LongText | None
+		department: DF.Link | None
+		employee: DF.Link
+		employee_id: DF.Data | None
+		employee_name: DF.Data | None
+		exit_interview_date: DF.Date
+		interviewer_name: DF.Link
+		naming_series: DF.Literal["EXIT-.YYYY.-.#####"]
+		overall_experience_rating: DF.Literal["", "1 - Very Poor", "2 - Poor", "3 - Average", "4 - Good", "5 - Excellent"]
+		reason_for_leaving: DF.Literal["", "Better Opportunity", "Compensation", "Work Environment", "Career Growth", "Personal Reasons", "Relocation", "Health Reasons", "Family Reasons", "Higher Education", "Other"]
+		reason_for_leaving_details: DF.SmallText | None
+		resignation_request: DF.Link | None
+		would_recommend: DF.Literal["", "Yes", "No"]
+	# end: auto-generated types
 
 	# ------------------------------------------------------------------ #
 	# Lifecycle hooks                                                      #
@@ -29,11 +51,13 @@ class OffboardingInterview(Document):
 		self._validate_resignation_link()
 
 	def on_submit(self):
-		frappe.db.set_value(self.doctype, self.name, "status", "Pending Line Manager")
-		self._notify_approver("Line Manager", "Pending Line Manager")
+		pass
+		# frappe.db.set_value(self.doctype, self.name, "status", "Pending Line Manager")
+		# self._notify_approver("Line Manager", "Pending Line Manager")
 
 	def on_cancel(self):
-		frappe.db.set_value(self.doctype, self.name, "status", "Scheduled")
+		pass
+		# frappe.db.set_value(self.doctype, self.name, "status", "Scheduled")
 
 	# ------------------------------------------------------------------ #
 	# Validation helpers                                                   #

@@ -4,8 +4,8 @@
 frappe.ui.form.on("Offboarding Interview", {
 
 	refresh(frm) {
-		frm.trigger("set_approval_buttons");
-		frm.set_df_property("status", "read_only", 1);
+		// frm.trigger("set_approval_buttons");
+		// frm.set_df_property("status", "read_only", 1);
 	},
 
 	resignation_request(frm) {
