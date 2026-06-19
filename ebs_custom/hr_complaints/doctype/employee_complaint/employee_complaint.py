@@ -7,6 +7,28 @@ from frappe import _
 
 
 class EmployeeComplaint(Document):
+	# begin: auto-generated types
+	# This code is auto-generated. Do not modify anything in this block.
+
+	from typing import TYPE_CHECKING
+
+	if TYPE_CHECKING:
+		from frappe.types import DF
+
+		amended_from: DF.Link | None
+		date_of_incident: DF.Date
+		department: DF.Link | None
+		description: DF.LongText
+		employee: DF.Link
+		employee_id: DF.Data | None
+		employee_name: DF.Data | None
+		hr_remarks: DF.LongText | None
+		incident_type: DF.Literal["", "Harassment", "Misconduct", "Policy Violation", "Other"]
+		naming_series: DF.Literal["COMP-.YYYY.-.#####"]
+		persons_involved: DF.SmallText
+		status: DF.Literal["Submitted", "Under Review", "Resolved"]
+		supporting_documents: DF.Attach | None
+	# end: auto-generated types
 
 	def before_insert(self):
 		"""Auto-fill employee details from the logged-in user if not already set."""
