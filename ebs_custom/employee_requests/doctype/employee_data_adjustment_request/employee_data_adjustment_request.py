@@ -24,6 +24,7 @@ class EmployeeDataAdjustmentRequest(Document):
 		hr_remarks: DF.SmallText | None
 		items: DF.Table[EmployeeAdjustmentItems]
 		request_date: DF.Date
+		status: DF.Literal["Pending", "In Progress", "Completed"]
 		supporting_document: DF.Attach | None
 	# end: auto-generated types
 
