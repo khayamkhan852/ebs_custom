@@ -127,7 +127,7 @@ doctype_js = {
 # before_install = "ebs_custom.install.before_install"
 # after_install = "ebs_custom.install.after_install"
 before_uninstall = "ebs_custom.customizations.fields_setup.remove_custom_fields"
-after_install = "ebs_custom.customizations.fields_setup.execute"
+after_install = "ebs_custom.install.after_install"
 after_migrate = "ebs_custom.setup.after_migrate"
 # Uninstallation
 # ------------
