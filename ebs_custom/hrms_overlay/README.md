@@ -1,31 +1,46 @@
 # HRMS PWA Overlay (managed by ebs_custom)
 
-These files are copied into the `hrms` app automatically when you run:
+Stored here — applied automatically on `bench install-app ebs_custom` and `bench migrate`.
 
-```bash
-bench --site YOUR_SITE migrate
-```
+## What is copied (safe files only)
 
-or when `ebs_custom` `after_migrate` runs.
+- `frontend/src/views/ebs_custom/` — PWA form screens
+- `frontend/src/router/ebs_custom.js` — routes
+- `frontend/src/components/icons/FrappeHRLogo.vue` — logo
+- `hrms/public/manifest/bot-hr-*` — PWA icons
 
-## After migrate — rebuild PWA (required)
+Branding (BOT HR title) is patched into existing hrms files — core files are NOT replaced.
+
+Router + Home.vue are patched idempotently (safe to run multiple times; duplicate imports are removed).
+
+## After migrate — rebuild if needed
 
 ```bash
 cd apps/hrms/frontend
+yarn install
 yarn build
 cd ../../..
 bench build --app hrms
 bench restart
 ```
 
-## What this folder contains
+## Build error: `ebsCustomRoutes has already been declared`
 
-- BOT HR branding (login, manifest, logo)
-- PWA routes for Salary Adjustment, Promotion Request, Branch Attendance Approval
-- Branch Attendance Approval screen with **Load Check-ins** button
+On server, edit `apps/hrms/frontend/src/router/index.js` — keep only ONE line:
 
-## When HRMS is updated
+```javascript
+import ebsCustomRoutes from "./ebs_custom"
+```
 
-`bench update` may change core `hrms` files. Running `bench migrate` re-applies this overlay.
+Then `yarn build` and `bench build --app hrms`.
 
-If `Home.vue` or `router/index.js` were heavily changed upstream, tell your developer to re-merge those two files manually.
+Or pull latest `ebs_custom` and run `bench migrate` (patch auto-fixes duplicates).
+
+## White screen at /hrms
+
+```bash
+cd apps/hrms/frontend && yarn install && yarn build
+cd ~/frappe-bench && bench build --app hrms && bench restart
+```
+
+Hard refresh browser: `Ctrl+Shift+R`
