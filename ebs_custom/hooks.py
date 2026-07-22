@@ -18,6 +18,7 @@ fixtures = [
                     "Employee-custom_branch",
                     "Employee Checkin-approval_status",
                     "Employee-custom_current_salary",
+                    "Item-custom_section_break_3ieq4",
                     "Item-custom_item_domains"
                 ]
             ]
