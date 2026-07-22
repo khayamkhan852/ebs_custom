@@ -129,7 +129,7 @@ def create_users(name):
 					"first_name": emp.first_name or emp.employee_name or emp.name,
 					"last_name": emp.last_name or "",
 					"username": emp.name,
-					"send_welcome_email": 0,
+					"send_welcome_email": 1,
 					"user_type": "System User",
 				}
 			)
