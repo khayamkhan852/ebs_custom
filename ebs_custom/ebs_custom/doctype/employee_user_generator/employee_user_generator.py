@@ -168,11 +168,8 @@ def create_users(name):
 
 
 def _make_password(employee_id, used_codes):
-	while True:
-		code = f"{random.randint(0, 99999):05d}"
-		if code not in used_codes:
-			used_codes.add(code)
-			return f"Hr-{code}-{employee_id}"
+	# Ab sab users ka default password fixed hai
+	return "User@123"
 
 
 def _check_permission():
