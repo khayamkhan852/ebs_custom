@@ -104,7 +104,7 @@ def create_users(name):
 				skipped += 1
 				continue
 
-			if cstr(row.status) != "Pending":
+			if cstr(row.status) in ["Created", "Skipped"]:
 				row.select = 0
 				skipped += 1
 				continue
@@ -129,7 +129,7 @@ def create_users(name):
 					"first_name": emp.first_name or emp.employee_name or emp.name,
 					"last_name": emp.last_name or "",
 					"username": emp.name,
-					"send_welcome_email": 1,
+					"send_welcome_email": 0,
 					"user_type": "System User",
 				}
 			)

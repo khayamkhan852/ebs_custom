@@ -111,7 +111,7 @@ function get_employees(frm) {
 
 function create_users_click(frm) {
 	const selected = (frm.doc.employee_list || []).filter(
-    (r) => cint(r.select)
+    (r) => Number(r.select) === 1
 );
 
 	if (!selected.length) {
