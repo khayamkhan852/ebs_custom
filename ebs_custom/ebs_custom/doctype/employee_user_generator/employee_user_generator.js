@@ -77,13 +77,124 @@ frappe.ui.form.on("Employee User Generator Item", {
 
 	select(frm, cdt, cdn) {
 		const row = locals[cdt][cdn];
+		const MAX_SELECTABLE = 20;
+
+		if (cint(row.select)) {
+			const selected_count = (frm.doc.employee_list || []).filter(
+				(r) => cint(r.select)
+			).length;
+
+			if (selected_count > MAX_SELECTABLE) {
+				// Revert this row's checkbox and warn the user
+				frappe.model.set_value(cdt, cdn, "select", 0);
+				frappe.show_alert({
+					message: __("You can select a maximum of {0} employees at a time.", [MAX_SELECTABLE]),
+					indicator: "orange",
+				});
+				return;
+			}
+		}
 
 		if (row.select && row.status === "Skipped" && row.user) {
-			frappe.model.set_value(cdt, cdn, "select", 0);
-			frappe.msgprint(
-				__("User already exists for this employee. It will be skipped.")
+			if (row.__skip_msg_shown) return;
+			row.__skip_msg_shown = true;
+
+			const msg_dialog = frappe.msgprint(
+				__(
+					"User already exists for this employee ({0}). It will be skipped by Create Users, but you can still update its password.",
+					[row.user]
+				)
 			);
+
+			// Auto-close this message after 2 seconds
+			setTimeout(() => {
+				if (msg_dialog && msg_dialog.hide) {
+					msg_dialog.hide();
+				}
+			}, 2000);
+		} else {
+			row.__skip_msg_shown = false;
 		}
+	},
+
+	update_password(frm, cdt, cdn) {
+		const row = locals[cdt][cdn];
+
+		if (!row.user) {
+			frappe.msgprint(__("This row has no linked User."));
+			return;
+		}
+
+		if (frappe.__epwd_dialog_open) {
+			return;
+		}
+		frappe.__epwd_dialog_open = true;
+
+		let d = new frappe.ui.Dialog({
+			title: __("Update Password"),
+			fields: [
+				{
+					fieldname: "new_password",
+					label: __("New Password"),
+					fieldtype: "Password",
+					reqd: 1,
+					description: __("This password will be set for user {0}.", [row.user]),
+				},
+			],
+			primary_action_label: __("Update"),
+			primary_action(values) {
+				d.get_primary_btn().prop("disabled", true);
+
+				frappe.call({
+					method:
+						"ebs_custom.ebs_custom.doctype.employee_user_generator.employee_user_generator.update_password",
+					args: {
+						name: frm.doc.name,
+						rows: [row.name],
+						new_password: values.new_password,
+					},
+					freeze: true,
+					freeze_message: __("Updating password..."),
+					callback(r) {
+						frappe.dom.unfreeze();
+
+						frappe.model.set_value(cdt, cdn, "password", values.new_password);
+						frappe.model.set_value(cdt, cdn, "select", 0);
+						frappe.model.set_value(
+							cdt,
+							cdn,
+							"message",
+							r.message || __("Password updated successfully")
+						);
+						frm.refresh_field("employee_list");
+
+						frappe.show_alert({
+							message: __("Password updated for employee {0}", [row.employee]),
+							indicator: "green",
+						});
+						d.hide();
+
+						frm.reload_doc();
+
+					},
+					error() {
+						frappe.dom.unfreeze();
+						d.get_primary_btn().prop("disabled", false);
+						frappe.msgprint(__("Could not update password. Please check Error Log."));
+					},
+				});
+			},
+		});
+
+		// Reliable single point of cleanup: fires whether the dialog is closed
+		// via the primary action, the X button, ESC, or clicking outside.
+		d.$wrapper.on("hidden.bs.modal", () => {
+			frappe.__epwd_dialog_open = false;
+			d.$wrapper.remove();
+			d = null;
+		});
+
+		d.show();
 	},
 });
 
@@ -110,21 +221,24 @@ function get_employees(frm) {
 }
 
 function create_users_click(frm) {
-	const selected = (frm.doc.employee_list || []).filter(
-    (r) => Number(r.select) === 1
-);
+	const rows = frm.doc.employee_list || [];
+	const selected = rows.filter((r) => Number(r.select) === 1);
+	const has_stale_created_rows = rows.some((r) => r.status === "Created");
 
-	if (!selected.length) {
+	if (!selected.length && !has_stale_created_rows) {
 		frappe.msgprint(
 			__("Please check at least one Pending employee, then click Create Users.")
 		);
 		return;
 	}
 
+	const confirm_message = selected.length
+		? __("Create users for {0} selected employee(s)?", [selected.length])
+		: __("No new employees selected. Refresh the status of already-linked employees?");
+
 	frappe.confirm(
-		__("Create users for {0} selected employee(s)?", [selected.length]),
+		confirm_message,
 		() => {
-			// IMPORTANT: pehle form save (select check DB mein jaye), phir server call
 			frm.save()
 				.then(() => {
 					return frappe.call({
@@ -142,7 +256,10 @@ function create_users_click(frm) {
 				})
 				.then((r) => {
 					if (r && r.message) {
-						frappe.msgprint(r.message);
+						frappe.show_alert({
+							message: r.message,
+							indicator: "green",
+						});
 					}
 				})
 				.catch(() => {

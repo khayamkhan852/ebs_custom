@@ -6,10 +6,11 @@ import random
 import frappe
 from frappe.model.document import Document
 from frappe.utils import cint, cstr
-from frappe.utils.password import update_password
+from frappe.utils.password import update_password as set_user_password
 
 
 SELF_SERVICE_ROLE = "Employee Self Service"
+MAX_SELECTABLE_USERS = 20
 
 
 class EmployeeUserGenerator(Document):
@@ -76,6 +77,7 @@ def get_employees(docname):
 
 	return "Employees loaded successfully."
 
+
 @frappe.whitelist()
 def create_users(name):
 	_check_permission()
@@ -85,23 +87,40 @@ def create_users(name):
 	if not doc.employee_list:
 		frappe.throw("No employees in the list. Click Get Employees, then Save.")
 
+	# Safety-net limit: at most MAX_SELECTABLE_USERS rows may be selected in
+	# a single run. The client already blocks checking more than this, but
+	# we re-validate here in case selection happened another way.
+	selected_count = sum(1 for row in doc.employee_list if cint(row.select))
+	if selected_count > MAX_SELECTABLE_USERS:
+		frappe.throw(
+			f"You can select a maximum of {MAX_SELECTABLE_USERS} employees at a time. "
+			f"Currently {selected_count} are selected. Please uncheck some and try again."
+		)
+
 	used_codes = set()
 	created = skipped = failed = 0
 
 	for row in doc.employee_list:
-		# Check field kabhi 0/1, kabhi True/False hota hai
-		if not cint(row.select):
-			continue
-
 		try:
 			emp = frappe.get_doc("Employee", row.employee)
 
+			# Always correct rows whose employee already has a linked user,
+			# regardless of whether "select" is checked. This makes sure that
+			# rows left over with status "Created" (from an earlier run) get
+			# flipped to "Skipped" the next time Create Users runs, even if
+			# the user didn't manually re-check their checkbox.
 			if emp.user_id:
 				row.status = "Skipped"
 				row.user = emp.user_id
 				row.message = f"Already linked to user {emp.user_id}"
 				row.select = 0
 				skipped += 1
+				continue
+
+			# From this point on, only process rows the user explicitly
+			# selected (these are the actual "create a new user" candidates).
+			# The "select" field is sometimes 0/1, sometimes True/False.
+			if not cint(row.select):
 				continue
 
 			if cstr(row.status) in ["Created", "Skipped"]:
@@ -141,7 +160,7 @@ def create_users(name):
 			emp.db_set("user_id", user.name)
 
 			# 3. Set Password (Official Frappe API)
-			update_password(user.name, password)
+			set_user_password(user.name, password)
 
 			# 4. Add Employee Self Service role AFTER Employee mapping
 			user.add_roles(SELF_SERVICE_ROLE)
@@ -150,7 +169,7 @@ def create_users(name):
 			row.user = user.name
 			row.password = password
 			row.message = "Created successfully"
-			row.select = 1
+			row.select = 0
 			created += 1
 
 		except Exception as e:
@@ -167,8 +186,51 @@ def create_users(name):
 	return doc.summary
 
 
+@frappe.whitelist()
+def update_password(name, rows, new_password):
+	"""Resets the password of the linked User for the given row(s)
+	(the password value comes from what the user typed in the dialog)."""
+	_check_permission()
+
+	if not new_password or len(new_password) < 6:
+		frappe.throw("Password must be at least 6 characters long.")
+
+	if isinstance(rows, str):
+		rows = frappe.parse_json(rows)
+
+	doc = frappe.get_doc("Employee User Generator", name)
+	row_map = {row.name: row for row in doc.employee_list}
+
+	updated = failed = 0
+
+	for row_name in rows:
+		row = row_map.get(row_name)
+		if not row or not row.user:
+			continue
+
+		try:
+			set_user_password(row.user, new_password)
+
+			row.password = new_password
+			# Uncheck select so the client-side depends_on condition reverts:
+			# the Password field shows again and the Update Password button hides.
+			row.select = 0
+			row.message = f"Password updated for {row.user}"
+			updated += 1
+
+		except Exception as e:
+			row.message = cstr(e)[:140]
+			failed += 1
+			frappe.log_error(frappe.get_traceback(), "Employee User Generator - Update Password")
+
+	doc.save(ignore_permissions=True)
+	frappe.db.commit()
+
+	return f"Password updated: {updated}, Failed: {failed}"
+
+
 def _make_password(employee_id, used_codes):
-	# Ab sab users ka default password fixed hai
+	# All users currently get a fixed default password
 	return "User@123"
 
 
