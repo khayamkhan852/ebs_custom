@@ -8,8 +8,16 @@ import frappe
 # Only copy these paths from hrms_overlay (safe — won't break core hrms)
 OVERLAY_COPY_PATHS = [
 	"frontend/src/views/ebs_custom",
+	"frontend/src/views/ChangePassword.vue",
+	"frontend/src/views/AppSettings.vue",
+	"frontend/src/views/Profile.vue",
 	"frontend/src/router/ebs_custom.js",
 	"frontend/src/components/icons/FrappeHRLogo.vue",
+	"frontend/src/components/RequestPanel.vue",
+	"frontend/src/components/RequestList.vue",
+	"frontend/src/components/EmployeeAdvanceItem.vue",
+	"frontend/src/data/advances.js",
+	"frontend/src/data/config/requestSummaryFields.js",
 	"hrms/public/manifest",
 ]
 
@@ -167,6 +175,26 @@ def _patch_router_index(hrms_root):
 			if pattern.split("\n")[0] in content:
 				content = content.replace(pattern, replacement)
 				break
+
+	# Change Password route (newer HRMS PWA feature — keep via overlay on older hrms)
+	if 'name: "ChangePassword"' not in content:
+		change_password_route = """\t{
+\t\tpath: "/change-password",
+\t\tname: "ChangePassword",
+\t\tcomponent: () => import("@/views/ChangePassword.vue"),
+\t},
+"""
+		if 'name: "Settings"' in content and 'path: "/settings"' in content:
+			content = content.replace(
+				'\t{\n\t\tpath: "/settings",\n\t\tname: "Settings",\n\t\tcomponent: () => import("@/views/AppSettings.vue"),\n\t},',
+				'\t{\n\t\tpath: "/settings",\n\t\tname: "Settings",\n\t\tcomponent: () => import("@/views/AppSettings.vue"),\n\t},\n'
+				+ change_password_route,
+			)
+		elif 'path: "/invalid-employee"' in content:
+			content = content.replace(
+				'\t{\n\t\tpath: "/invalid-employee",',
+				change_password_route + '\t{\n\t\tpath: "/invalid-employee",',
+			)
 
 	with open(path, "w", encoding="utf-8") as handle:
 		handle.write(content)
